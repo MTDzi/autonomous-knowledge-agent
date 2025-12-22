@@ -14,7 +14,7 @@ from sqlalchemy.orm.decl_api import DeclarativeBase
 from sqlalchemy.sql import func
 
 
-Base:DeclarativeBase = declarative_base()
+Base: DeclarativeBase = declarative_base()
 
 class Account(Base):
     __tablename__ = 'accounts'
