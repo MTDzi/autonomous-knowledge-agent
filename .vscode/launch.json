@@ -1,0 +1,46 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug All Tests",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/solution"
+            },
+            "args": [
+                "-sv",
+                "${workspaceFolder}"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Debug Current Test File",
+            "type": "python",
+            "request": "launch",
+            "module": "pytest",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/solution"
+            },
+            "args": [
+                "-sv",
+                "${file}"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Run Current Script",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/solution"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

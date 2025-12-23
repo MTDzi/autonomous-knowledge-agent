@@ -73,8 +73,10 @@ A LangGraph-powered multi-agent system that:
 ## Take-aways <a name="take_aways"></a>
 
 ### Primary goal <a name="primary_goal"></a>
+The Autonomous Knowledge Agent needs to accept tickets raised by users of the CultPass system, understand them, make decisions about what informations is needed (FAQ and / or previously resolved tickets, BUT also potentially info about the user like: What reservations he might have?), and then provide an answer to that ticket OR make a decision that it cannot be resolved and escalate the ticket to a human.
 
 ### Functional Requirements <a name="functional_requirements"></a>
+* The MAS system can be asked questions in the form of a ticket alongside with metadata about the date, the user, etc.
 
 ### Non-Functional Requirements <a name="non_functional_requirements"></a>
 

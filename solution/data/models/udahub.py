@@ -1,4 +1,6 @@
 import enum
+from pathlib import Path
+
 from sqlalchemy import (
     Column,
     String,
@@ -8,13 +10,19 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.orm.decl_api import DeclarativeBase
 from sqlalchemy.sql import func
 
 
 Base: DeclarativeBase = declarative_base()
+
+
+UDAHUB_DB = (
+    Path(__file__).parent 
+    / '..' / '..' / 'data' / 'core' / 'udahub.db'
+).resolve().as_posix()
+
 
 class Account(Base):
     __tablename__ = 'accounts'

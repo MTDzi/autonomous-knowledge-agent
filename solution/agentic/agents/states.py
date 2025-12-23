@@ -1,0 +1,55 @@
+from functools import cache
+from typing import Literal, Type, TypedDict
+
+from langgraph.graph.message import MessagesState
+from pydantic import BaseModel, Field, create_model
+
+from utils import get_available_tags
+
+
+class AgentState(MessagesState):
+    ticket_text: str
+    account_id: str
+    ticket_metadata: dict[str, str]
+
+    # Classification attributes
+    tags: list[str]
+    is_ticket_classified_score: float
+    needs_info_about_previous_user_tickets: bool
+    needs_info_about_reservations: bool
+
+
+@cache
+def create_dynamic_classifier_state(account_id: str) -> Type[BaseModel]:
+    """
+    Creates a Pydantic model on-the-fly using the available tags.
+    """
+    current_tags: list[str] = get_available_tags(account_id)
+    
+    # We create a Literal type from the list
+    TagLiteral = Literal[tuple(current_tags)]
+    
+    # Define the fields for our dynamic model
+    fields = {
+        "is_ticket_classified_score": (
+            float, 
+            Field(description="A score between 0 and 100; 100 if the user's intent is clearly understood, 0 if not.")
+        ),
+        "needs_info_about_previous_user_tickets": (
+            bool, 
+            Field(description="True if we need to look up historical support data for this user.")
+        ),
+        "needs_info_about_reservations": (
+            bool, 
+            Field(description="True if the query relates to event bookings.")
+        ),
+        "tags": (
+            list[TagLiteral], 
+            Field(description=f"Select all applicable tags from: {', '.join(current_tags)}")
+        )
+    }
+    
+    # 'create_model' returns a brand new Pydantic class
+    return create_model("DynamicClassifierState", **fields)
+
+

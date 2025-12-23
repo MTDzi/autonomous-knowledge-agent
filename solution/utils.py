@@ -1,8 +1,7 @@
 # reset_udahub.py
 import os
 from sqlalchemy import create_engine, Engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base, sessionmaker
 from contextlib import contextmanager
 from langchain_core.messages import (
     SystemMessage,
@@ -10,8 +9,10 @@ from langchain_core.messages import (
 )
 from langgraph.graph.state import CompiledStateGraph
 
+from data.models import udahub
 
 Base = declarative_base()
+
 
 def reset_db(db_path: str, echo: bool = True):
     """Drops the existing udahub.db file and recreates all tables."""
@@ -76,3 +77,21 @@ def chat_interface(agent:CompiledStateGraph, ticket_id:str):
         result = agent.invoke(input=trigger, config=config)
         print("Assistant:", result["messages"][-1].content)
         is_first_iteration = False
+        
+        
+def get_available_tags(account_id: str) -> list[str]:
+    """
+    Connects to the Knowledge Base and retrieves available tags for the given account.
+    """
+    engine = create_engine(f"sqlite:///{udahub.UDAHUB_DB}", echo=False)
+    all_tags = set()
+    
+    with get_session(engine) as session:
+        account = session.query(udahub.Account).filter_by(
+            account_id=account_id
+        ).first()
+        for article in account.knowledge_articles:
+            tags = article.tags.replace(', ', ',').split(',')
+            all_tags.update(tags)
+
+    return sorted(list(all_tags))
