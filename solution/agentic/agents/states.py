@@ -9,14 +9,14 @@ from utils import get_available_tags
 
 class AgentState(MessagesState):
     ticket_text: str
-    account_id: str
     ticket_metadata: dict[str, str]
+    account_id: str
 
     # Classification attributes
     tags: list[str]
-    is_ticket_classified_score: float
-    needs_info_about_previous_user_tickets: bool
-    needs_info_about_reservations: bool
+    is_ticket_classified_score: float = -1.0
+    needs_info_about_previous_user_tickets_score: float = -1.0
+    needs_info_about_reservations_score: float = -1.0
 
 
 @cache
@@ -35,13 +35,13 @@ def create_dynamic_classifier_state(account_id: str) -> Type[BaseModel]:
             float, 
             Field(description="A score between 0 and 100; 100 if the user's intent is clearly understood, 0 if not.")
         ),
-        "needs_info_about_previous_user_tickets": (
-            bool, 
-            Field(description="True if we need to look up historical support data for this user.")
+        "needs_info_about_previous_user_tickets_score": (
+            float, 
+            Field(description="A score between 0 and 100; 100 if we need to look up historical support data for this user, 0 if not.")
         ),
-        "needs_info_about_reservations": (
-            bool, 
-            Field(description="True if the query relates to event bookings.")
+        "needs_info_about_reservations_score": (
+            float, 
+            Field(description="A score between 0 and 100; 100 if the query relates to event bookings, 0 if not.")
         ),
         "tags": (
             list[TagLiteral], 
