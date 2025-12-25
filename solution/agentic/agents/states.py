@@ -1,5 +1,5 @@
 from functools import cache
-from typing import Literal, Type, TypedDict
+from typing import Literal, Type
 
 from langgraph.graph.message import MessagesState
 from pydantic import BaseModel, Field, create_model
@@ -11,12 +11,22 @@ class AgentState(MessagesState):
     ticket_text: str
     ticket_metadata: dict[str, str]
     account_id: str
+    user_id: str | None = None
 
     # Classification attributes
     tags: list[str]
     is_ticket_classified_score: float = -1.0
     needs_info_about_previous_user_tickets_score: float = -1.0
     needs_info_about_reservations_score: float = -1.0
+
+    # Previous tickets attributes
+    previous_tickets: list[dict[str, str]] = []
+    
+    # Reservations attributes
+    reservations: list[dict[str, str]] = []
+
+    # Articles attributes
+    relevant_articles: list[dict[str, str]] = []
 
 
 @cache
@@ -51,5 +61,3 @@ def create_dynamic_classifier_state(account_id: str) -> Type[BaseModel]:
     
     # 'create_model' returns a brand new Pydantic class
     return create_model("DynamicClassifierState", **fields)
-
-

@@ -1,6 +1,8 @@
 from agentic.agents.states import AgentState
 from langgraph.types import Command
 
+ORCHESTRATOR_AGENT_NAME = "orchestrator_agent"
+
 
 class OrchestratorAgent:
     def __init__(
@@ -25,6 +27,4 @@ class OrchestratorAgent:
                 else:
                     next_step = 'final_resolution_agent'
 
-        return Command(
-            goto=next_step,
-        )        
+        return Command(goto=next_step)

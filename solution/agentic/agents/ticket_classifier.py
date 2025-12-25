@@ -1,19 +1,18 @@
-from typing import get_args
-
 from langgraph.types import Command
 from langchain_core.prompts import ChatPromptTemplate
 
 from agentic.agents.states import AgentState, create_dynamic_classifier_state
 
+TICKET_CLASSIFIER_AGENT_NAME = "ticket_classifier_agent"
 
 
-class TicketClassifier:
+class TicketClassifierAgent:
     def __init__(self, llm):
         self.llm = llm
         self.prompt = ChatPromptTemplate.from_messages([
             ("system", (
                 "You are a support classifier for Account: {account_id}."
-                "Assign tags to the user's support ticket into appropriate categories based on the provided tags" # : {tags}.\n\n"
+                "Assign tags to the user's support ticket into appropriate categories based on the provided tags in the output schema."
                 "The ticket might require multiple tags, here's a couple of examples:\n"
 
                 "How to Reserve a Spot for an Event --> Tags: reservation, events, booking, attendance\n"
@@ -33,10 +32,6 @@ class TicketClassifier:
             ("user", "Classify this ticket:\n\n{ticket_text}\n\nwith the following metadata:\n\n{ticket_metadata}")
         ])
 
-    @staticmethod
-    def _peel_off_tags_from_list_of_literals(literal_type):
-        return list(get_args(get_args(literal_type)[0]))
-
     def __call__(self, state: AgentState) -> Command:
         """
         TODO
@@ -50,7 +45,6 @@ class TicketClassifier:
         result = chain.invoke({
             "ticket_text": state["ticket_text"],
             "ticket_metadata": state["ticket_metadata"],
-            "tags": self._peel_off_tags_from_list_of_literals(DynamicClassifierState.model_fields["tags"].annotation),
             "account_id": account_id
         })
         state["is_ticket_classified_score"] = result.is_ticket_classified_score
