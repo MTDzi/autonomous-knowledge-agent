@@ -6,13 +6,12 @@ from agentic.agents.states import AgentState
 from agentic.agents.agent_names import ORCHESTRATOR_AGENT_NAME
 
 
-class ResolutionAgent:
+class EscalationAgent:
     def __init__(self, llm):
         self.llm = llm
 
     def __call__(self, state: AgentState) -> Command[Literal[ORCHESTRATOR_AGENT_NAME]]:
-        # Logic to provide the final resolution based on the gathered information
-        state["response"] = "Based on your previous tickets and reservations, here is the resolution to your issue."
-        state["is_resolved_score"] = 70.0  # Example score indicating if the issue is resolved
+        # Logic to fetch articles based on the ticket information
+        
 
         return Command(goto=ORCHESTRATOR_AGENT_NAME)

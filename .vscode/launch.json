@@ -32,15 +32,15 @@
             "justMyCode": true
         },
         {
-            "name": "Python: Run Current Script",
+            "name": "03_agentic_app.py",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/solution/03_agentic_app.py",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/solution"
             },
             "console": "integratedTerminal",
             "justMyCode": true
-        }
+        },
     ]
 }

@@ -28,6 +28,10 @@ class AgentState(MessagesState):
     # Articles attributes
     relevant_articles: list[dict[str, str]] = []
 
+    # Resolution attributes
+    resolution_text: str | None = None
+    is_resolved_score: float = -1.0
+
 
 @cache
 def create_dynamic_classifier_state(account_id: str) -> Type[BaseModel]:

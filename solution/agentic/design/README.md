@@ -77,67 +77,71 @@ The Autonomous Knowledge Agent needs to accept tickets raised by users of the Cu
 
 ### Functional Requirements <a name="functional_requirements"></a>
 * The MAS system can be asked questions in the form of a ticket alongside with metadata about the date, the user, etc.
+* The system is capable of composing a response that utilizes past tickets, user info, user reservations, and FAQ articles
 
 ### Non-Functional Requirements <a name="non_functional_requirements"></a>
 
 
 # Design <a name="design"></a>
+Initially, I considered a more flexible architecture, something like the Network type of a system, but even at the stage of designing it on a piece of paper it became complicated.
+
+So, I settled upon an Orchestrator architecture with the following graph:
+![Workflow graph](../../images/graph_outline.png)
+
+The agents are explained in more detail in the following section.
+
+However, before diving deeper, I think it helps to first see the `AgentState` whose attributes are available and updated through the course of going through the graph:
+```python
+class AgentState(MessagesState):
+    ticket_text: str
+    ticket_metadata: dict[str, str]
+    account_id: str
+    user_id: str | None = None
+
+    # Classification attributes
+    tags: list[str]
+    is_ticket_classified_score: float = -1.0
+    needs_info_about_previous_user_tickets_score: float = -1.0
+    needs_info_about_reservations_score: float = -1.0
+
+    # Previous tickets attributes
+    previous_tickets: list[dict[str, str]] = []
+    
+    # Reservations attributes
+    reservations: list[dict[str, str]] = []
+
+    # Articles attributes
+    relevant_articles: list[dict[str, str]] = []
+
+    # Resolution attributes
+    resolution_text: str | None = None
+    is_resolved_score: float = -1.0
+```
 
 ## Roles & Responsibilities <a name="roles_and_responsibilities"></a>
-For each agent, list inputs, outputs, success/failure behavior, and retries.
 
-#### Agent 1: Coordinator
-* **Inputs:**
-* **Outputs:**
-* **Success:**
-* **Failure:**
-* **Retries:**
+#### Agent 1: Orchestrator
+This agent is responsible for all the logic about which nodes of the graph (agents) MUST be visited and which are visited if certain conditions are met.
 
-#### Agent 2: Slave
+#### Agent 2: Ticket Classifier
+This is probably the most involved agent. It's responsible for assigning tags to the ticket raised by the user. The idea is to provide all tags used in the available FAQ questions as input for the LLM. In addition, I ask the LLM to provide three seperate scores (from 0 to 100):
+1. For self-assessment of how well the ticket was classified
+2. For judgement about whether the ticket seems to require previous user tickets
+3. For judgement about whether the user reservations are needed for answering the question.
 
-## Architecture pattern <a name="architecture_pattern"></a>
-Compare patterns against scenario requirements:
-* Use orchestrator when strict order, centralized state, or rollback is needed.
-* For critical flows, prefer orchestrator to manage compensating transactions.
-* Use peer-to-peer when flexibility, parallelism, or modular chaining is preferred.
-* For highly parallel tasks (e.g., content enrichment), prefer peer-to-peer pipelines.
-* Use retries with exponential backoff and a dead-letter mechanism for persistent failures.
+These three scores will be then used by the Orchestrator to determine the downstream agent use and prompts.
 
-Fill these fields:
-* Pattern: ORCHESTRATOR or PEER-TO-PEER
-* Reasoning: map requirements to pattern benefits
-* Data Flow: describe message format and path (JSON payload with metadata, events, or commands)
+#### Agent 3: Ticket Fetcher
+This is a simple agent whose job is to fetch all tickets raised in the past by this particular user. These tickets are then used by the downstream agents.
 
-## Communication & Data Flow <a name="communication_and_data_flow"></a>
-* Choose communication protocol: direct method calls (in-proc), message queues (RabbitMQ/Kafka), or HTTP callbacks.
-* Define message schema: minimal fields such as {id, type, payload, status, trace}.
-* Decide on error handling: retries, dead-letter routing, and supervisor escalation.
+#### Agent 4: Reservation Fetcher
+This is again a simple agent whose job is to fetch all reservations for the user raising the ticket.
 
+#### Agent 5: Article Fetcher
+This is an agent whose task is to get all FAQ articles from the DB that share at least one tag with the ticket raised by the user.
 
-OTHER NOTES:
-**Implement agents and graph**
-Use the starter code functions as templates.
-For orchestrator:
-Implement a supervisor function that reads state and returns the next agent name or END
-Implement each agent to process state and return to supervisor or END
-For peer-to-peer:
-Implement agents that directly return the next agent name
-Create a StateGraph(MessagesState), add nodes, and connect edges to reflect the chosen pattern.
-Compile and visualize the graph with graph.get_graph().draw_mermaid_png() and display(Image(...)).
+#### Agent 6: Resolution Agent
+This agent, along with the Ticket Classifier, is again a more complicated one. It utilizes a complicated prompt whose pieces are composed dynamically depending on the `AgentState` updated thus far by the upstream agents. I'm also alsking the LLM to provide a self-assessment score to determine if we can pass on the response to the user (as a resolution to the ticket), OR whether we should instead escalate it to a specialized human support worker.
 
-**Test the prototype**
-Create sample messages that exercise normal and edge cases (failures, timeouts).
-Run the workflow and validate transitions and outputs.
-Log state transitions and use random or deterministic stubs for external calls to simulate responses.
-
-**Produce the architecture diagram**
-Export the visual produced by LangGraph or draw a simple diagram showing agents, flows, and protocols.
-Annotate the diagram with data formats and failure paths.
-
-
-### Reflection questions
-
-* Why was the chosen pattern selected?
-* What advantages does this pattern bring for the scenario?
-* What challenges might arise in production (scaling, consistency, observability)?
-* How would the design change if requirements evolve (e.g., add parallel processing, add audit logs)?
+#### Agent 7: Escalation Agent
+This agent's responsibility is to inform the user the ticket was misunderstood and suggest how he might improve it, or whether the user would like a human to tackle his case.

@@ -1,13 +1,25 @@
+from pathlib import Path
+
 from langgraph.graph import StateGraph
 from langchain_openai import ChatOpenAI
 
 from agentic.agents.states import AgentState
-from agentic.agents.orchestrator import OrchestratorAgent, ORCHESTRATOR_AGENT_NAME
-from agentic.agents.ticket_classifier import TicketClassifierAgent, TICKET_CLASSIFIER_AGENT_NAME
-from agentic.agents.ticket_fetcher import TicketFetcherAgent, TICKET_FETCHER_AGENT_NAME
-from agentic.agents.reservation_fetcher import ReservationFetcherAgent, RESERVATION_FETCHER_AGENT_NAME
-from agentic.agents.articles_fetcher import ArticlesFetcherAgent, ARTICLE_FETCHER_AGENT_NAME
-from agentic.agents.resolver import ResolutionAgent, RESOLUTION_AGENT_NAME
+from agentic.agents.orchestrator import OrchestratorAgent
+from agentic.agents.ticket_classifier import TicketClassifierAgent
+from agentic.agents.ticket_fetcher import TicketFetcherAgent
+from agentic.agents.reservation_fetcher import ReservationFetcherAgent
+from agentic.agents.articles_fetcher import ArticlesFetcherAgent
+from agentic.agents.resolver import ResolutionAgent
+from agentic.agents.escalator import EscalationAgent
+from agentic.agents.agent_names import (
+    ORCHESTRATOR_AGENT_NAME,
+    TICKET_CLASSIFIER_AGENT_NAME,
+    TICKET_FETCHER_AGENT_NAME,
+    RESERVATION_FETCHER_AGENT_NAME,
+    ARTICLE_FETCHER_AGENT_NAME,
+    RESOLUTION_AGENT_NAME,
+    ESCALATION_AGENT_NAME,
+)
 
 
 if __name__ == "__main__":
@@ -41,12 +53,21 @@ if __name__ == "__main__":
     articles_fetcher_agent = ArticlesFetcherAgent()
     workflow.add_node(ARTICLE_FETCHER_AGENT_NAME, articles_fetcher_agent)
 
-    # The final decision agent
-    final_resolution_agent = ResolutionAgent(llm)
-    workflow.add_node(RESOLUTION_AGENT_NAME, final_resolution_agent)
+    # The resolution agent
+    resolution_agent = ResolutionAgent(llm)
+    workflow.add_node(RESOLUTION_AGENT_NAME, resolution_agent)
+
+    # The escalation agent
+    escalation_agent = EscalationAgent(llm)
+    workflow.add_node(ESCALATION_AGENT_NAME, escalation_agent)
 
     # Compile and run the graph with an example input
     graph = workflow.compile()
+
+    png_data = graph.get_graph().draw_mermaid_png()
+    with open(Path(__file__).parent / "images" / "graph_outline.png", "wb") as f:
+        f.write(png_data)
+    print("Successfully saved graph_outline.png")
 
     example_input = {
         "ticket_text": (
@@ -61,4 +82,5 @@ if __name__ == "__main__":
         "account_id": "cultpass",
     }
 
-    graph.invoke(example_input)
+    response_for_example_input = graph.invoke(example_input)
+    print(f'Final response: {response_for_example_input}')

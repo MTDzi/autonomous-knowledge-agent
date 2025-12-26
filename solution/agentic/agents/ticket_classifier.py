@@ -1,9 +1,10 @@
+from typing import Literal
+
 from langgraph.types import Command
 from langchain_core.prompts import ChatPromptTemplate
 
 from agentic.agents.states import AgentState, create_dynamic_classifier_state
-
-TICKET_CLASSIFIER_AGENT_NAME = "ticket_classifier_agent"
+from agentic.agents.agent_names import ORCHESTRATOR_AGENT_NAME
 
 
 class TicketClassifierAgent:
@@ -32,7 +33,7 @@ class TicketClassifierAgent:
             ("user", "Classify this ticket:\n\n{ticket_text}\n\nwith the following metadata:\n\n{ticket_metadata}")
         ])
 
-    def __call__(self, state: AgentState) -> Command:
+    def __call__(self, state: AgentState) -> Command[Literal[ORCHESTRATOR_AGENT_NAME]]:
         """
         TODO
         """
@@ -52,4 +53,4 @@ class TicketClassifierAgent:
         state["needs_info_about_reservations_score"] = result.needs_info_about_reservations_score
         state["tags"] = result.tags
         
-        return Command(goto="orchestrator_agent")
+        return Command(goto=ORCHESTRATOR_AGENT_NAME)
