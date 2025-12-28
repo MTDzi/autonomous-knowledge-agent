@@ -50,7 +50,7 @@ if __name__ == "__main__":
     workflow.add_node(RESERVATION_FETCHER_AGENT_NAME, reservation_fetcher_agent)
 
     # The articles fetcher agent
-    articles_fetcher_agent = ArticlesFetcherAgent()
+    articles_fetcher_agent = ArticlesFetcherAgent(llm)
     workflow.add_node(ARTICLE_FETCHER_AGENT_NAME, articles_fetcher_agent)
 
     # The resolution agent

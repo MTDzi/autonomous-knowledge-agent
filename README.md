@@ -55,7 +55,6 @@ Include all items used to build project.
 
 
 # TODO
-- [ ] Finish the design document
 - [ ] Arm the ticket_fetcher with a tool for getting the tickets
 - [ ] Arm the reservation_fetcher with a tool for getting the reservations
 - [ ] Create a Chroma DB for the articles + retrieve the relevant articles

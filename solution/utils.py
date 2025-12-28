@@ -53,6 +53,7 @@ def model_to_dict(instance):
         for column in instance.__table__.columns
     }
 
+
 def chat_interface(agent:CompiledStateGraph, ticket_id:str):
     is_first_iteration = False
     messages = [SystemMessage(content = f"ThreadId: {ticket_id}")]

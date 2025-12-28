@@ -65,3 +65,16 @@ def create_dynamic_classifier_state(account_id: str) -> Type[BaseModel]:
     
     # 'create_model' returns a brand new Pydantic class
     return create_model("DynamicClassifierState", **fields)
+
+
+class _Article(BaseModel):
+    """Represents a single knowledge base article."""
+    title: str = Field(description="The title of the article.")
+    content: str = Field(description="The full body content or summary of the article.")
+    tags: str = Field(description="Comma-separated tags or a single string describing the article category.")
+
+class ArticleFetcherResult(BaseModel):
+    """The structured response containing multiple fetched articles."""
+    relevant_articles: list[_Article] = Field(
+        description="A list of relevant knowledge articles extracted from the knowledge base."
+    )

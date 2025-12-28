@@ -42,5 +42,16 @@
             "console": "integratedTerminal",
             "justMyCode": true
         },
+        {
+            "name": "tools.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/solution/agentic/tools/tools.py",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/solution"
+            },
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
     ]
 }

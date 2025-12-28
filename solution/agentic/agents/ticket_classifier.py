@@ -35,7 +35,7 @@ class TicketClassifierAgent:
 
     def __call__(self, state: AgentState) -> Command[Literal[ORCHESTRATOR_AGENT_NAME]]:
         """
-        TODO
+        Classifies the ticket and updates the state with classification results.
         """
         account_id = state["account_id"]
         
@@ -47,10 +47,14 @@ class TicketClassifierAgent:
             "ticket_text": state["ticket_text"],
             "ticket_metadata": state["ticket_metadata"],
             "account_id": account_id
-        })
-        state["is_ticket_classified_score"] = result.is_ticket_classified_score
-        state["needs_info_about_previous_user_tickets_score"] = result.needs_info_about_previous_user_tickets_score
-        state["needs_info_about_reservations_score"] = result.needs_info_about_reservations_score
-        state["tags"] = result.tags
+        }) 
         
-        return Command(goto=ORCHESTRATOR_AGENT_NAME)
+        return Command(
+            goto=ORCHESTRATOR_AGENT_NAME,
+            update={
+                "is_ticket_classified_score": result.is_ticket_classified_score,
+                "needs_info_about_previous_user_tickets_score": result.needs_info_about_previous_user_tickets_score,
+                "needs_info_about_reservations_score": result.needs_info_about_reservations_score,
+                "tags": result.tags,
+            },
+        )
