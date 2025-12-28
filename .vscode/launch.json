@@ -40,7 +40,7 @@
                 "PYTHONPATH": "${workspaceFolder}/solution"
             },
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "tools.py",

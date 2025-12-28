@@ -1,4 +1,5 @@
-from datetime import datetime
+from pathlib import Path
+
 from sqlalchemy import (
     Column,
     String,
@@ -6,7 +7,6 @@ from sqlalchemy import (
     Boolean,
     DateTime,
     ForeignKey,
-    UniqueConstraint,
 )
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.orm.decl_api import DeclarativeBase
@@ -14,6 +14,12 @@ from sqlalchemy.sql import func
 
 
 Base: DeclarativeBase = declarative_base()
+
+
+CULTPASS_DB = (
+    Path(__file__).parent 
+    / '..' / '..' / 'data' / 'external' / 'cultpass.db'
+).resolve().as_posix()
 
 
 class User(Base):

@@ -11,7 +11,8 @@ class AgentState(MessagesState):
     ticket_text: str
     ticket_metadata: dict[str, str]
     account_id: str
-    user_id: str | None = None
+    user_id: str
+    user_preference: str | None = None
 
     # Classification attributes
     tags: list[str]
@@ -31,6 +32,14 @@ class AgentState(MessagesState):
     # Resolution attributes
     resolution_text: str | None = None
     is_resolved_score: float = -1.0
+
+    # Escalation attributes
+    escalation_reason: str | None = None
+    urgency_level: str | None = None
+
+    # Summary attributes
+    should_update_preference: bool = False
+    new_preference: str | None = None
 
 
 @cache
@@ -73,8 +82,42 @@ class _Article(BaseModel):
     content: str = Field(description="The full body content or summary of the article.")
     tags: str = Field(description="Comma-separated tags or a single string describing the article category.")
 
+
 class ArticleFetcherResult(BaseModel):
     """The structured response containing multiple fetched articles."""
     relevant_articles: list[_Article] = Field(
         description="A list of relevant knowledge articles extracted from the knowledge base."
+    )
+
+
+class ResolutionResult(BaseModel):
+    """Schema for summarizing the resolution."""
+    resolution_text: str = Field(description="A response resolving the issue.")
+    is_resolved_score: float = Field(description="A score between 0 and 100 indicating how well the issue was resolved.")
+
+
+class EscalationResult(BaseModel):
+    """Schema for escalation results."""
+    escalation_reason: str = Field(description="A brief explanation of why the ticket is being escalated.")
+    urgency_level: str = Field(description="The urgency level of the escalation (e.g., 'high', 'medium', 'low').")
+
+
+class MemoryUpdate(BaseModel):
+    """Schema for extracting long-term memory."""
+    new_preference: str | None = Field(description="A specific user preference found (e.g. 'Prefers short emails')")
+    resolution_summary: str | None = Field(description="A 1-sentence summary of the resolved issue.")
+    should_update_preference: bool = Field(description="Whether there is actually anything worth saving.")
+
+
+class _Ticket(BaseModel):
+    """Represents a single previous ticket raised by the user."""
+    ticket_content: str = Field(description="The full text content of the ticket.")
+    ticket_tags: str = Field(description="Tags associated with the ticket.")
+    ticket_other: str = Field(description="Any other relevant metadata about the ticket.")
+
+
+class TicketFetcherResult(BaseModel):
+    """The structured response containing multiple fetched previous tickets."""
+    previous_tickets: list[_Ticket] = Field(
+        description="A list of previous tickets raised by the user."
     )

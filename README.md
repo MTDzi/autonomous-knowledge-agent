@@ -55,7 +55,5 @@ Include all items used to build project.
 
 
 # TODO
-- [ ] Arm the ticket_fetcher with a tool for getting the tickets
-- [ ] Arm the reservation_fetcher with a tool for getting the reservations
-- [ ] Create a Chroma DB for the articles + retrieve the relevant articles
-- [ ] Compose a prompt for the resolver
+- [ ] More examples
+- [ ] thread_id
