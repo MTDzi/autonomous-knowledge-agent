@@ -59,7 +59,7 @@ if __name__ == "__main__":
     workflow.add_node(TICKET_FETCHER_AGENT_NAME, ticket_fetcher_agent)
 
     # The reservations fetcher agent
-    reservation_fetcher_agent = ReservationFetcherAgent()
+    reservation_fetcher_agent = ReservationFetcherAgent(llm)
     workflow.add_node(RESERVATION_FETCHER_AGENT_NAME, reservation_fetcher_agent)
 
     # The articles fetcher agent

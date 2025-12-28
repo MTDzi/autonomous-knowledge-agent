@@ -90,6 +90,20 @@ class ArticleFetcherResult(BaseModel):
     )
 
 
+class _Reservation(BaseModel):
+    """Represents a single reservation made by the user."""
+    reservation_details: str = Field(description="Details about the reservation, such as event name, date, and location.")
+    reservation_status: str = Field(description="The current status of the reservation (e.g., confirmed, canceled).")
+    reservation_other: str = Field(description="Any other relevant metadata about the reservation.")
+
+
+class ReservationFetcherResult(BaseModel):
+    """The structured response containing multiple fetched reservations."""
+    reservations: list[_Reservation] = Field(
+        description="A list of reservations associated with the user."
+    )
+
+
 class ResolutionResult(BaseModel):
     """Schema for summarizing the resolution."""
     resolution_text: str = Field(description="A response resolving the issue.")

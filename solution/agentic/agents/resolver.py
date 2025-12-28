@@ -22,8 +22,6 @@ class ResolutionAgent:
 
                 "You will also be given a user preference, if available, to tailor your response accordingly."
                 "\n\nBased on all this information, provide a final resolution."
-                "However, if the ticket has nothing to do with the user's previous tickets, or reservations, or knowledge articles, make that clear by"
-                " returning a score that is low."
             )),
             ("user", (
                 "Resolve this ticket:\n\n{ticket_text}\n\nwith the following metadata:\n\n{ticket_metadata}"
@@ -34,9 +32,12 @@ class ResolutionAgent:
                 "User preference (if any):\n{user_preference}\n\n"
                 "User reservations (if any):\n{reservations}\n\n"
                 "User previous tickets (if any):\n{previous_tickets}\n\n"
+
+                "Return a final resolution and a score from 0 to 100 indicating how well the resolution addresses the user's issue."
+                " IMPORTANT: if the ticket has nothing to do with the user's previous tickets, or reservations, or knowledge articles (in which case they will be missing), make that clear by"
+                " returning a score that is low (below 30)."
             )),
         ])
-
 
     def __call__(self, state: AgentState) -> Command[Literal[ORCHESTRATOR_AGENT_NAME]]:
         # Logic to provide the final resolution based on the gathered information
